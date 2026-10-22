@@ -1,17 +1,65 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>99 speedmart - Your Photo</title>
-<style>body{margin:0;padding:16px;background:#EEF7F0;color:#0D2214;font-family:"Trebuchet MS",system-ui,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center}
-.c{background:#fff;border:4px solid #007A33;border-radius:16px;max-width:480px;width:100%;padding:22px;text-align:center}
-h1{color:#007A33;margin:0 0 8px;font-size:1.4rem}img{max-width:100%;max-height:55vh;border-radius:8px;border:3px solid #007A33;margin:12px 0}
-a,button{display:block;width:100%;margin:8px 0;padding:14px;border-radius:999px;border:3px solid #004D1F;font:800 1.05rem inherit;font-family:inherit;text-decoration:none;text-align:center;cursor:pointer;background:#C75A12;color:#fff}
-button.s{background:#007A33}#st{min-height:22px;font-weight:700}</style></head><body><div class="c"><h1>Your Photo is Ready!</h1><div id="st">Loading...</div>
-<img id="im" alt="Your photo"><a id="dl" download>Download Photo</a><button id="sv" class="s" style="display:none">Save to Photos</button>
-<p style="font-size:.8rem;color:#555">iPhone: tap Save to Photos, or press and hold the photo.</p></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Photobooth - Your Photo</title>
+<style>
+:root{--bg:#0A0A12;--ink:#F1F0FF;--muted:#A3A1C2;--a:#7C5CFF;--b:#22D3EE;--c:#FF5C8A;--grad:linear-gradient(135deg,var(--a),var(--b));--glass:rgba(255,255,255,.07);--line:rgba(255,255,255,.18)}
+@media(prefers-color-scheme:light){:root{--bg:#F4F3FF;--ink:#17132E;--muted:#5E5A80;--glass:rgba(255,255,255,.75);--line:rgba(60,40,140,.16)}}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px));background:var(--bg);color:var(--ink);font-family:Inter,system-ui,"Segoe UI",sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;isolation:isolate;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:-20%;z-index:-1;filter:blur(50px);opacity:.75;background:radial-gradient(40% 40% at 20% 20%,color-mix(in srgb,var(--a) 50%,transparent),transparent),radial-gradient(35% 35% at 80% 30%,color-mix(in srgb,var(--b) 40%,transparent),transparent),radial-gradient(40% 40% at 50% 95%,color-mix(in srgb,var(--c) 35%,transparent),transparent);animation:drift 20s ease-in-out infinite alternate}
+@keyframes drift{to{transform:translate(4%,-3%) scale(1.12) rotate(6deg)}}
+@keyframes rise{from{opacity:0;transform:translateY(24px) scale(.97)}}
+@keyframes fade{from{opacity:0;transform:scale(.97)}}
+@keyframes float{50%{transform:translateY(-6px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{50%{box-shadow:0 0 0 8px transparent,0 8px 34px -4px var(--c);transform:scale(1.03)}}
+.c{background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:28px;max-width:480px;width:100%;padding:26px 22px;text-align:center;box-shadow:0 30px 80px -30px var(--a);animation:rise .6s cubic-bezier(.2,.8,.2,1)}
+.logo{width:48px;height:48px;margin:0 auto 10px;border-radius:15px;background:var(--grad);display:grid;place-items:center;font-size:1.5rem;animation:float 4s ease-in-out infinite;box-shadow:0 8px 24px -6px var(--a)}
+h1{margin:0 0 6px;font-size:1.5rem;font-weight:800;letter-spacing:-.02em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+#st{min-height:22px;font-weight:600;color:var(--muted);font-size:.95rem;display:flex;gap:8px;align-items:center;justify-content:center}
+.spin{width:14px;height:14px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--b);animation:spin .8s linear infinite}
+.pic{position:relative;margin:14px 0}
+img{max-width:100%;max-height:55vh;border-radius:16px;display:block;margin:0 auto;box-shadow:0 16px 48px -10px rgba(0,0,0,.55);animation:fade .8s both}
+a,button{position:relative;overflow:hidden;display:block;width:100%;margin:10px 0 0;padding:15px;border-radius:999px;border:1px solid transparent;font:700 1.05rem inherit;font-family:inherit;text-decoration:none;text-align:center;cursor:pointer;background:var(--grad);color:#fff;box-shadow:0 8px 24px -8px var(--a);transition:transform .2s,box-shadow .2s}
+a::after,button::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);transform:translateX(-120%);transition:transform .6s}
+a:hover::after,button:hover::after{transform:translateX(120%)}
+a:active,button:active{transform:scale(.97)}
+a.ready{animation:pulse 2.4s ease-in-out infinite}
+button.s{background:var(--glass);color:var(--ink);border-color:var(--line);box-shadow:none}
+a[href=""],a:not([href]){opacity:.45;pointer-events:none}
+.tip{font-size:.8rem;color:var(--muted);margin:16px 0 0}
+:focus-visible{outline:2px solid var(--b);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="c">
+  <div class="logo">📸</div>
+  <h1>Your Photo is Ready!</h1>
+  <div id="st" role="status"><span class="spin"></span>Loading…</div>
+  <div class="pic"><img id="im" alt="Your photo"></div>
+  <a id="dl" download>⬇️ Download Photo</a>
+  <button id="sv" class="s" style="display:none">📲 Save to Photos</button>
+  <p class="tip">iPhone: tap Save to Photos, or press and hold the photo.</p>
+</div>
 <script>
-const n=(new URLSearchParams(location.search).get('n')||'').replace(/[^A-Za-z0-9._-]/g,''),st=document.getElementById('st');
-if(!n||!/\.jpe?g$/i.test(n))st.textContent='No photo specified.';
-else{const parts=location.pathname.split('/').filter(Boolean),owner=location.hostname.split('.')[0],repo=parts[0],
-url='https://raw.githubusercontent.com/'+owner+'/'+repo+'/main/photos/'+n;
-document.getElementById('im').src=url;
-fetch(url).then(r=>{if(!r.ok)throw 0;return r.blob()}).then(b=>{const f=new File([b],n,{type:'image/jpeg'}),u=URL.createObjectURL(b),a=document.getElementById('dl');a.href=u;a.download=n;st.textContent='Tap Download to save';
-if(navigator.canShare&&navigator.canShare({files:[f]})){const s=document.getElementById('sv');s.style.display='block';s.onclick=()=>navigator.share({files:[f]}).catch(()=>{})}}).catch(()=>{st.textContent='Photo not found yet - wait a moment and refresh.';document.getElementById('dl').href=url});}
-</script></body></html>
+const st=document.getElementById('st'),im=document.getElementById('im'),dl=document.getElementById('dl');
+const n=(new URLSearchParams(location.search).get('n')||'').replace(/[^A-Za-z0-9._-]/g,'');
+const say=t=>{st.textContent=t};
+if(!n||!/\.jpe?g$/i.test(n)){say('No photo specified.');im.style.display='none'}
+else{
+  const parts=location.pathname.split('/').filter(Boolean),owner=location.hostname.split('.')[0],repo=parts[0],
+  url='https://raw.githubusercontent.com/'+owner+'/'+repo+'/main/photos/'+n;
+  im.src=url;
+  fetch(url).then(r=>{if(!r.ok)throw 0;return r.blob()}).then(b=>{
+    const f=new File([b],n,{type:'image/jpeg'});
+    dl.href=URL.createObjectURL(b);dl.download=n;dl.classList.add('ready');say('Tap Download to save');
+    if(navigator.canShare&&navigator.canShare({files:[f]})){const s=document.getElementById('sv');s.style.display='block';s.onclick=()=>navigator.share({files:[f]}).catch(()=>{})}
+  }).catch(()=>{say('Photo not found yet - wait a moment and refresh.');dl.href=url;dl.classList.add('ready')});
+}
+</script>
+</body>
+</html>
