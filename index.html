@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>99 speedmart - Your Photo</title>
+  <style>
+    :root {
+      --g: #007A33; --o: #F37021; --gd: #004D1F; --bg: #EEF7F0; --p: #FFFFFF;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: #0D2214;
+      font-family: "Trebuchet MS", "Lucida Grande", system-ui, sans-serif;
+      min-height: 100vh;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      touch-action: manipulation;
+    }
+    .card {
+      background: var(--p);
+      border: 4px solid var(--g);
+      border-radius: 16px;
+      max-width: 480px;
+      width: 100%;
+      padding: 22px;
+      text-align: center;
+      box-shadow: 0 8px 0 var(--gd);
+    }
+    .badge {
+      display: inline-block;
+      background: var(--g);
+      color: #ffffff;
+      font-weight: 900;
+      padding: 6px 16px;
+      border-radius: 50px;
+      border: 3px solid var(--o);
+      font-size: 1.05rem;
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+    }
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--g);
+      margin-bottom: 4px;
+    }
+    .motto {
+      font-size: 0.75rem;
+      font-weight: 900;
+      color: var(--o);
+      letter-spacing: 1.5px;
+      margin-bottom: 12px;
+      display: block;
+      text-transform: uppercase;
+    }
+    #status {
+      font-size: 0.95rem;
+      font-weight: 800;
+      margin-bottom: 14px;
+      color: var(--o);
+      min-height: 24px;
+    }
+    .photo-frame {
+      background: #ffffff;
+      border: 3px solid var(--g);
+      border-radius: 10px;
+      padding: 6px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+      cursor: pointer;
+    }
+    #preview-img {
+      max-width: 100%;
+      max-height: 52vh;
+      display: block;
+      margin: 0 auto;
+      border-radius: 6px;
+      object-fit: contain;
+    }
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+    .btn {
+      font-family: inherit;
+      font-weight: 900;
+      font-size: 1.15rem;
+      padding: 14px 20px;
+      border-radius: 999px;
+      border: 3px solid var(--gd);
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 0 var(--gd);
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+      user-select: none;
+    }
+    .btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 var(--gd);
+    }
+    @keyframes pulse-btn {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.03); box-shadow: 0 6px 14px rgba(243, 112, 33, 0.4); }
+      100% { transform: scale(1); }
+    }
+    .btn-pulse {
+      animation: pulse-btn 1.6s infinite ease-in-out;
+    }
+    .btn-primary { background: var(--o); color: #ffffff; }
+    .btn-save { background: var(--g); color: #ffffff; border-color: var(--gd); }
+    .btn-link { background: #ffffff; color: var(--g); font-size: 0.9rem; padding: 10px 16px; font-weight: 700; border-color: var(--g); }
+    .tip {
+      font-size: 0.82rem;
+      color: #555555;
+      margin-top: 14px;
+      line-height: 1.45;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="badge">99 speedmart</div>
+    <h1>Your Photo is Ready!</h1>
+    <span class="motto">DEKAT LAGI MURAH</span>
+    <div id="status">👇 Tap below to download immediately!</div>
+
+    <div class="btn-group" style="margin-bottom: 14px;">
+      <button id="main-download-btn" class="btn btn-primary btn-pulse">
+        ⬇️ TAP TO DOWNLOAD PHOTO
+      </button>
+      <button id="save-photos-btn" class="btn btn-save" style="display: none;">
+        📸 Save to Photos / Camera Roll
+      </button>
+    </div>
+
+    <div class="photo-frame" id="photo-frame" title="Tap to download">
+      <img id="preview-img" alt="Photobooth Photo Preview" src="">
+    </div>
+
+    <div class="btn-group">
+      <button id="copy-btn" class="btn btn-link">
+        📋 Copy Photo Link
+      </button>
+    </div>
+
+    <p class="tip">
+      💡 <strong>iPhone & Android:</strong> Tap the big orange button above to save directly to your device! If you're on an iPhone, tap <em>Save to Photos</em> to put it straight into your Camera Roll.
+    </p>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const imgUrl = params.get('img') || params.get('url');
+    const filename = params.get('name') || ('photobooth-' + Date.now() + '.jpg');
+    const statusEl = document.getElementById('status');
+    const previewImg = document.getElementById('preview-img');
+    const mainDownloadBtn = document.getElementById('main-download-btn');
+    const savePhotosBtn = document.getElementById('save-photos-btn');
+    const copyBtn = document.getElementById('copy-btn');
+    const photoFrame = document.getElementById('photo-frame');
+
+    let cachedBlob = null;
+    let cachedFile = null;
+
+    function triggerDownload() {
+      if (cachedBlob) {
+        const blobUrl = URL.createObjectURL(cachedBlob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => a.remove(), 100);
+        statusEl.textContent = '✅ Download started!';
+      } else if (imgUrl) {
+        // Fallback: navigate to direct image
+        const a = document.createElement('a');
+        a.href = imgUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => a.remove(), 100);
+      }
+    }
+
+    if (!imgUrl) {
+      statusEl.textContent = 'No photo specified.';
+    } else {
+      previewImg.src = imgUrl;
+
+      // Pre-fetch image as blob to prepare instant same-origin download
+      fetch(imgUrl)
+        .then(res => {
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res.blob();
+        })
+        .then(blob => {
+          cachedBlob = blob;
+          cachedFile = new File([blob], filename, { type: 'image/jpeg' });
+
+          // Attempt auto-download immediately (succeeds on desktop / supported browsers)
+          try {
+            triggerDownload();
+          } catch (e) {}
+
+          // Enable Native Web Share API if supported (iPhone / Android Save to Camera Roll)
+          if (navigator.canShare && navigator.canShare({ files: [cachedFile] })) {
+            savePhotosBtn.style.display = 'flex';
+          }
+        })
+        .catch(err => {
+          console.warn('Pre-fetch error:', err);
+          statusEl.textContent = 'Tap below to download:';
+        });
+    }
+
+    mainDownloadBtn.addEventListener('click', triggerDownload);
+    photoFrame.addEventListener('click', triggerDownload);
+
+    // Any touch anywhere on the page starts the download
+    window.addEventListener('touchstart', (e) => {
+      if (!e.target.closest('button, a')) {
+        triggerDownload();
+      }
+    }, { once: true });
+
+    savePhotosBtn.addEventListener('click', async () => {
+      if (cachedFile && navigator.canShare) {
+        try {
+          await navigator.share({
+            title: '99 Photobooth Photo',
+            files: [cachedFile]
+          });
+        } catch (e) {}
+      }
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(imgUrl || window.location.href);
+        copyBtn.textContent = '✅ Copied!';
+        setTimeout(() => { copyBtn.textContent = '📋 Copy Photo Link'; }, 2000);
+      } catch (e) {}
+    });
+  </script>
+</body>
+</html>
