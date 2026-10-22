@@ -1,0 +1,17 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>99 speedmart - Your Photo</title>
+<style>body{margin:0;padding:16px;background:#EEF7F0;color:#0D2214;font-family:"Trebuchet MS",system-ui,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.c{background:#fff;border:4px solid #007A33;border-radius:16px;max-width:480px;width:100%;padding:22px;text-align:center}
+h1{color:#007A33;margin:0 0 8px;font-size:1.4rem}img{max-width:100%;max-height:55vh;border-radius:8px;border:3px solid #007A33;margin:12px 0}
+a,button{display:block;width:100%;margin:8px 0;padding:14px;border-radius:999px;border:3px solid #004D1F;font:800 1.05rem inherit;font-family:inherit;text-decoration:none;text-align:center;cursor:pointer;background:#C75A12;color:#fff}
+button.s{background:#007A33}#st{min-height:22px;font-weight:700}</style></head><body><div class="c"><h1>Your Photo is Ready!</h1><div id="st">Loading...</div>
+<img id="im" alt="Your photo"><a id="dl" download>Download Photo</a><button id="sv" class="s" style="display:none">Save to Photos</button>
+<p style="font-size:.8rem;color:#555">iPhone: tap Save to Photos, or press and hold the photo.</p></div>
+<script>
+const n=(new URLSearchParams(location.search).get('n')||'').replace(/[^A-Za-z0-9._-]/g,''),st=document.getElementById('st');
+if(!n||!/\.jpe?g$/i.test(n))st.textContent='No photo specified.';
+else{const parts=location.pathname.split('/').filter(Boolean),owner=location.hostname.split('.')[0],repo=parts[0],
+url='https://raw.githubusercontent.com/'+owner+'/'+repo+'/main/photos/'+n;
+document.getElementById('im').src=url;
+fetch(url).then(r=>{if(!r.ok)throw 0;return r.blob()}).then(b=>{const f=new File([b],n,{type:'image/jpeg'}),u=URL.createObjectURL(b),a=document.getElementById('dl');a.href=u;a.download=n;st.textContent='Tap Download to save';
+if(navigator.canShare&&navigator.canShare({files:[f]})){const s=document.getElementById('sv');s.style.display='block';s.onclick=()=>navigator.share({files:[f]}).catch(()=>{})}}).catch(()=>{st.textContent='Photo not found yet - wait a moment and refresh.';document.getElementById('dl').href=url});}
+</script></body></html>
