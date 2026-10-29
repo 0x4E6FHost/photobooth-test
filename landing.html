@@ -52,7 +52,7 @@ const say=t=>{st.textContent=t};
 if(!n||!/\.jpe?g$/i.test(n)){say('No photo specified.');im.style.display='none'}
 else{
   const parts=location.pathname.split('/').filter(Boolean),owner=location.hostname.split('.')[0],repo=parts[0],
-  url='https://raw.githubusercontent.com/'+owner+'/'+repo+'/main/test/'+n;
+  url='https://raw.githubusercontent.com/'+owner+'/'+repo+'/main/99-13years-anniversary/'+n;
   im.src=url;
   fetch(url).then(r=>{if(!r.ok)throw 0;return r.blob()}).then(b=>{
     const f=new File([b],n,{type:'image/jpeg'});
